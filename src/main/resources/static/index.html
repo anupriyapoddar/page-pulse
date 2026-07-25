@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Pulse - URL Audit Tool</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; color: #333; margin: 0; padding: 40px; display: flex; flex-direction: column; min-height: 90vh; }
+        .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex: 1; }
+        h1 { margin-top: 0; color: #111; font-size: 24px; }
+        .input-group { display: flex; gap: 10px; margin-top: 20px; }
+        input[type="text"] { flex: 1; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
+        input[type="text"]:focus { border-color: #2563eb; }
+        button { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1d4ed8; }
+        .results { margin-top: 30px; display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; }
+        .metric-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
+        .metric-row:last-child { border-bottom: none; }
+        .label { font-weight: 600; color: #475569; }
+        .value { color: #0f172a; font-family: monospace; }
+        .loading { text-align: center; margin-top: 20px; color: #64748b; display: none; }
+        footer { text-align: center; margin-top: 40px; font-size: 14px; color: #64748b; }
+        footer a { color: #2563eb; text-decoration: none; font-weight: 600; }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Page Pulse</h1>
+    <p>Enter any public URL to run an instant SEO and performance audit.</p>
+
+    <div class="input-group">
+        <input type="text" id="urlInput" placeholder="https://example.com" />
+        <button onclick="runAudit()">Audit Page</button>
+    </div>
+
+    <div id="loading" class="loading">Auditing page, please wait...</div>
+
+    <div id="results" class="results">
+        <h3>Audit Report</h3>
+        <div class="metric-row"><span class="label">Target URL:</span> <span class="value" id="resUrl">-</span></div>
+        <div class="metric-row"><span class="label">HTTP Status:</span> <span class="value" id="resStatus">-</span></div>
+        <div class="metric-row"><span class="label">Response Time:</span> <span class="value" id="resTime">-</span></div>
+        <div class="metric-row"><span class="label">Page Title:</span> <span class="value" id="resTitle">-</span></div>
+        <div class="metric-row"><span class="label">Meta Description:</span> <span class="value" id="resDesc">-</span></div>
+        <div class="metric-row"><span class="label">H1 Count:</span> <span class="value" id="resH1">-</span></div>
+        <div class="metric-row"><span class="label">Images Missing Alt Text:</span> <span class="value" id="resAlt">-</span></div>
+        <div class="metric-row"><span class="label">Approximate Word Count:</span> <span class="value" id="resWords">-</span></div>
+    </div>
+</div>
+
+<!-- MANDATORY FOOTER CREDIT REQUIREMENT FOR DIGITAL HEROES TASK -->
+<footer>
+    Built for <a href="https://digitalheroesco.com" target="_blank">Digital Heroes Training Task</a>
+</footer>
+
+<script>
+    async function runAudit() {
+        const url = document.getElementById('urlInput').value.trim();
+        if (!url) {
+            alert('Please enter a valid URL');
+            return;
+        }
+
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('results').style.display = 'none';
+
+        try {
+            const response = await fetch('/api/audit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            });
+
+            if (!response.ok) throw new Error('Audit failed');
+
+            const data = await response.json();
+
+            document.getElementById('resUrl').innerText = data.url;
+            document.getElementById('resStatus').innerText = data.httpStatus;
+            document.getElementById('resTime').innerText = data.responseTimeMs + ' ms';
+            document.getElementById('resTitle').innerText = data.pageTitle || 'None';
+            document.getElementById('resDesc').innerText = data.metaDescription || 'None';
+            document.getElementById('resH1').innerText = data.h1Count;
+            document.getElementById('resAlt').innerText = data.missingAltImagesCount;
+            document.getElementById('resWords').innerText = data.approximateWordCount;
+
+            document.getElementById('results').style.display = 'block';
+        } catch (error) {
+            alert('Error running audit. Make sure the URL is accessible.');
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
