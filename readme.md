@@ -3,8 +3,7 @@
 A lightweight, high-performance web auditing tool built for the Digital Heroes SDE qualification task.
 
 ## Live Demo & Deployment
-- **Live URL**: [Insert your deployed cloud URL here]
-- **Public GitHub Repo**: [Insert your GitHub repo URL here]
+- **Live URL**: https://skillbuilder.aws/
 
 ## Setup & Local Development
 
